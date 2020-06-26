@@ -1,0 +1,25 @@
+{
+  "name": "Automation-using-Selenium-and-nodeJS-to-submit-code-and-downloading-test-cases-in-chrome",
+  "version": "1.0.0",
+  "description": "Automating the pepcoding website to push code to a particular question and submit the code to run through all the test cases and finally after successful submission download the test cases.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mb11797/Automation-using-Selenium-and-nodeJS-to-submit-code-and-downloading-test-cases-in-chrome.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mb11797/Automation-using-Selenium-and-nodeJS-to-submit-code-and-downloading-test-cases-in-chrome/issues"
+  },
+  "homepage": "https://github.com/mb11797/Automation-using-Selenium-and-nodeJS-to-submit-code-and-downloading-test-cases-in-chrome#readme",
+  "dependencies": {
+    "chromedriver": "^83.0.0",
+    "selenium-webdriver": "^4.0.0-alpha.7"
+  },
+  "devDependencies": {}
+}
