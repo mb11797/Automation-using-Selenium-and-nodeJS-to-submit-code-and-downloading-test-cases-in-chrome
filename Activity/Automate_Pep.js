@@ -51,6 +51,11 @@ credentialWillBeReadPromise.then(function(content){
     return submitBtnWillBeClickedPromise;
 }).then(function(){
     console.log("User Logged In Successfully.");
+}).then(function(){
+    let coursePageURLPromise = driver.get("https://www.pepcoding.com/resources/");
+    return coursePageURLPromise;
+}).then(function(){
+    console.log("Opened courses page.");
 }).catch(function(err){
     console.log(err);
 });
