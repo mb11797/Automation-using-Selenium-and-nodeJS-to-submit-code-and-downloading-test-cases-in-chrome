@@ -5,7 +5,10 @@
 let fs = require("fs");
 
 let credentials = process.argv[2];
+let courseName = process.argv[3];
 let un, pn;
+let gce;           //global course element 
+
 
 // chromedriver
 require("chromedriver");
@@ -56,6 +59,35 @@ credentialWillBeReadPromise.then(function(content){
     return coursePageURLPromise;
 }).then(function(){
     console.log("Opened courses page.");
+}).then(function(){
+    let siteOverlayWillBeFoundPromise = driver.findElement(swd.By.css("#siteOverlay"));
+    return siteOverlayWillBeFoundPromise;
+}).then(function(soe){
+    let willWaitForOverlayPromise = driver.wait(swd.until.elementIsNotVisible(soe));
+    return willWaitForOverlayPromise;
+}).then(function(){
+    let cardElementWillBeSelectedPromise = driver.findElements(swd.By.css(".card-image h2"));
+    return cardElementWillBeSelectedPromise;
+}).then(function(elements){
+    gce = elements;
+    //extract name of the courses
+    let tPromisesArray = [];
+    for(let i=0; i<elements.length; i++){
+        let elementTextPromise = elements[i].getText();
+        tPromisesArray.push(elementTextPromise);
+    }
+    return Promise.all(tPromisesArray);
+}).then(function(elementsText){
+    let i;
+    for(i=0; i<elementsText.length; i++){
+        if(courseName == elementsText[i]){
+            break;
+        }
+    }
+    let courseWillBeClickedPromise = gce[i].click();
+    return courseWillBeClickedPromise;
+}).then(function(){
+    console.log("Reached Inside our Course.");
 }).catch(function(err){
     console.log(err);
 });
