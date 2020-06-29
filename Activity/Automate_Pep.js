@@ -88,8 +88,21 @@ credentialWillBeReadPromise.then(function(content){
     return courseWillBeClickedPromise;
 }).then(function(){
     console.log("Reached Inside our Course.");
+}).then(function(){
+    // read metadata.json file
+    let fileReadPromise = fs.promises.readFile(metadata);
+    return fileReadPromise;
+}).then(function(content){
+    let questions = JSON.parse(content);
+    let questionWillBeSolvedPromise = solveQuestion(questions[0]);
+    return questionWillBeSolvedPromise;
+}).then(function(){
+    console.log("Question has been submitted.");
 }).catch(function(err){
     console.log(err);
 });
+
+
+
 
 console.log("I will be first");
