@@ -59,13 +59,8 @@ credentialWillBeReadPromise.then(function(content){
     return coursePageURLPromise;
 }).then(function(){
     console.log("Opened courses page.");
-}).then(function(){
-    let siteOverlayWillBeFoundPromise = driver.findElement(swd.By.css("#siteOverlay"));
-    return siteOverlayWillBeFoundPromise;
-}).then(function(soe){
-    let willWaitForOverlayPromise = driver.wait(swd.until.elementIsNotVisible(soe));
-    return willWaitForOverlayPromise;
-}).then(function(){
+}).then(overlayWillBeDismissedPromise)
+.then(function(){
     let cardElementWillBeSelectedPromise = driver.findElements(swd.By.css(".card-image h2"));
     return cardElementWillBeSelectedPromise;
 }).then(function(elements){
@@ -88,21 +83,24 @@ credentialWillBeReadPromise.then(function(content){
     return courseWillBeClickedPromise;
 }).then(function(){
     console.log("Reached Inside our Course.");
-}).then(function(){
-    // read metadata.json file
-    let fileReadPromise = fs.promises.readFile(metadata);
-    return fileReadPromise;
-}).then(function(content){
-    let questions = JSON.parse(content);
-    let questionWillBeSolvedPromise = solveQuestion(questions[0]);
-    return questionWillBeSolvedPromise;
-}).then(function(){
-    console.log("Question has been submitted.");
 }).catch(function(err){
     console.log(err);
 });
 
 
-
+// Logic => promise => allow wait overlay dismiss
+function overlayWillBeDismissedPromise(){
+    return new Promise(function(resolve, reject){
+        let siteOverlayWillBeFoundPromise = driver.findElement(swd.By.css("#siteOverlay"));
+        siteOverlayWillBeFoundPromise.then(function(soe){
+            let willWaitForOverlayPromise = driver.wait(swd.until.elementIsNotVisible(soe));
+            return willWaitForOverlayPromise;
+        }).then(function(){
+            resolve();
+        }).catch(function(err){
+            rejects(err);
+        })
+    })
+}
 
 console.log("I will be first");
