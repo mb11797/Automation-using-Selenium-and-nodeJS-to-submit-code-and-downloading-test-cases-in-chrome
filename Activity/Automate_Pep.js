@@ -5,9 +5,12 @@
 let fs = require("fs");
 
 let credentials = process.argv[2];
-let courseName = process.argv[3];
+let metadata = process.argv[3];
+let courseName = process.argv[4];
 let un, pn;
-let gce;           //global course element 
+let gce;            //global course element 
+
+
 
 
 // chromedriver
@@ -83,9 +86,56 @@ credentialWillBeReadPromise.then(function(content){
     return courseWillBeClickedPromise;
 }).then(function(){
     console.log("Reached Inside our Course.");
+}).then(function(){
+    // read metadata.json file
+    let fileReadPromise = fs.promises.readFile(metadata);
+    return fileReadPromise;
+}).then(function(content){
+    let questions = JSON.parse(content);
+    let questionWillBeSolvedPromise = solveQuestion(questions[0]);
+    return questionWillBeSolvedPromise;
+}).then(function(){
+    console.log("Question has been submitted.");
 }).catch(function(err){
     console.log(err);
 });
+
+//problem submit, test case download
+function solveQuestion(question){
+    return new Promise(function(resolve, reject){
+        let qPageWillBeOpenedPromise = goToQuestionPage(question);
+        qPageWillBeOpenedPromise.then(overlayWillBeDismissedPromise).then(function(){
+            let editorTabWillBeSelectedPromise = driver.findElement(swd.By.css(".tab.bold.editorTab"));
+            return editorTabWillBeSelectedPromise;
+        }).then(function(editorTab){
+            let editorTabWillBeClickedPromise = editorTab.click();
+            return editorTabWillBeClickedPromise;
+        }).then(function(){
+            console.log("Question Page is Opened");
+        }).catch(function(err){
+            reject(err);
+        })
+    })
+}
+
+function goToQuestionPage(question){
+    return new Promise(function(resolve, reject){
+        let qUrlWillBeOpenedPromise = driver.get(question.url);
+        qUrlWillBeOpenedPromise.then(function(){
+            let payCoinsBtnWillBeSelected = driver.findElement(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5"))
+            return payCoinsBtnWillBeSelected;
+            // resolve();
+        }).then(function(coinsBtn){
+            let coinsWillBePaidPromise = coinsBtn.click();
+            return coinsWillBePaidPromise;
+        }).then(function(){
+            console.log("Coins have been paid.");
+            resolve();
+        }).catch(function(err){
+            reject(err);
+        })
+    })
+}
 
 
 // Logic => promise => allow wait overlay dismiss
