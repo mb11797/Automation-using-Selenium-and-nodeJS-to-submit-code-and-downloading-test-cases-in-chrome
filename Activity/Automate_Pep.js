@@ -3,13 +3,16 @@
 // npm install chromedriver
 
 let fs = require("fs");
+let path = require("path");
 
 let credentials = process.argv[2];
 let metadata = process.argv[3];
 let courseName = process.argv[4];
 let un, pn;
 let gce;            //global course element 
-
+let gCode;          //global code element
+let gCodeArea;      //global code area element for editor
+let gTextArea;      //global text area
 
 
 
@@ -112,6 +115,45 @@ function solveQuestion(question){
             return editorTabWillBeClickedPromise;
         }).then(function(){
             console.log("Question Page is Opened");
+        }).then(function(){
+            let fileReadPromise = fs.promises.readFile(path.join(question.path, "Main.java"));
+            return fileReadPromise;
+        }).then(function(code){
+            gCode = code + "";
+            let codeAreaWillBeSelectedPromise = driver.findElement(swd.By.css(".ace_text-input"));
+            return codeAreaWillBeSelectedPromise;
+        }).then(function(codeArea){
+            gCodeArea = codeArea;
+            let ctrlAWillBePressedPromise = codeArea.sendKeys(swd.Key.CONTROL + "a");
+            return ctrlAWillBePressedPromise;
+        }).then(function(){
+            let deleteWillBePressedPromise = gCodeArea.sendKeys(swd.Key.DELETE);
+            // let deleteWillBePressedPromise = gCodeArea.sendKeys(swd.Key.BACK_SPACE);
+            return deleteWillBePressedPromise;
+        }).then(function(){
+            let textAreaWillBeSelectedPromise = driver.findElement(swd.By.css("#customInput"));         //id ke liye (#) aur class ke liye (.) use karna hota hai
+            return textAreaWillBeSelectedPromise;
+        }).then(function(textArea){
+            gTextArea = textArea;
+            let codeWillBeSentPromise = gTextArea.sendKeys(gCode);
+            return codeWillBeSentPromise;
+        }).then(function(){
+            let ctrlAWillBePressedPromise = gTextArea.sendKeys(swd.Key.CONTROL + "a");
+            return ctrlAWillBePressedPromise;
+        }).then(function(){
+            let ctrlXPromise = gTextArea.sendKeys(swd.Key.CONTROL + "x");
+            return ctrlXPromise;
+        }).then(function(){
+            let ctrlVPromise = gCodeArea.sendKeys(swd.Key.CONTROL + "v");
+            return ctrlVPromise;
+        }).then(function(){
+            let submitBtnWilBeSelectedPromise = driver.findElement(swd.By.css("#submitCode"));
+            return submitBtnWilBeSelectedPromise;
+        }).then(function(submitBtn){
+            let submitBtnWillBeClickedPromise = submitBtn.click();
+            return submitBtnWillBeClickedPromise;
+        }).then(function(){
+            resolve();
         }).catch(function(err){
             reject(err);
         })
