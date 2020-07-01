@@ -165,45 +165,44 @@ function solveQuestion(question) {
 
 function goToQuestionPage(question) {
     return new Promise(function (resolve, reject) {
-        overlayWillBeDismissedPromise().then(function () {
-            let modulesTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".lis.tab")), 5000);
-            return modulesTabWillBeSelectedPromise;
-        }).catch(function (err) {
-            console.log(err);
-        }).then(function () {
-            let AllModulesWillBeSelectedPromise = driver.findElements(swd.By.css(".lis.tab"));
-            return AllModulesWillBeSelectedPromise;
-        }).catch(function () {
-        }).then(function (AllModules) {
-            console.log("I was here");
+            overlayWillBeDismissedPromise().then(function () {
+                let modulesTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".lis.tab")), 5000);
+                return modulesTabWillBeSelectedPromise;
+            }).catch(function (err) {
+                console.log(err);
+            }).then(function () {
+                let AllModulesWillBeSelectedPromise = driver.findElements(swd.By.css(".lis.tab"));
+                return AllModulesWillBeSelectedPromise;
+            }).catch(function () {
+            }).then(function (AllModules) {
+                console.log("I was here");
 
-            gModules = AllModules;
-            // console.log(gModules.length);
+                gModules = AllModules;
+                // console.log(gModules.length);
 
-            let moduleNameArray = AllModules.map(function (module) {
-                return module.getText();
-            })
-            return Promise.all(moduleNameArray);
-        }).then(function (modulesWithText) {
-            let i;
-            for (i = 0; i < modulesWithText.length; i++) {
-                if (modulesWithText[i].includes(question.module)) {
-                    // console.log(i);
-                    break;
+                let moduleNameArray = AllModules.map(function (module) {
+                    return module.getText();
+                })
+                return Promise.all(moduleNameArray);
+            }).then(function (modulesWithText) {
+                let i;
+                for (i = 0; i < modulesWithText.length; i++) {
+                    if (modulesWithText[i].includes(question.module)) {
+                        // console.log(i);
+                        break;
+                    }
                 }
-            }
 
-            let moduleWillBeClickedPromise = gModules[i].click();
-            return moduleWillBeClickedPromise;
-        })
-        .then(function () {
-            console.log("Module clicked");
-        })
-        .then(overlayWillBeDismissedPromise)
-        .then(function(){
-            let lecturesTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".module-details.active li")), 5000);
-            return lecturesTabWillBeSelectedPromise;
-        }).then(function () {
+                let moduleWillBeClickedPromise = gModules[i].click();
+                return moduleWillBeClickedPromise;
+            }).then(function () {
+                console.log("Module clicked");
+            })
+            .then(overlayWillBeDismissedPromise)
+            .then(function(){
+                let lecturesTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".module-details.active li")), 5000);
+                return lecturesTabWillBeSelectedPromise;
+            }).then(function () {
                 let lecturesWillBeSelectedPromise = driver.findElements(swd.By.css(".module-details.active li"));
                 return lecturesWillBeSelectedPromise;
             }).then(function (lectureElements) {
@@ -224,25 +223,52 @@ function goToQuestionPage(question) {
                 }
                 let lectureWillBeClickedPromise = gLectures[i].click();
                 return lectureWillBeClickedPromise;
-            })
-            .then(function(){
+            }).then(function(){
                 console.log("Lecture clicked");
             })
-            
-        // .then(function(){
-        //     let payCoinsBtnWillBeSelected = driver.findElement(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5"))
-        //     return payCoinsBtnWillBeSelected;
-        //     // resolve();
-        // }).then(function(coinsBtn){
-        //     let coinsWillBePaidPromise = coinsBtn.click();
-        //     return coinsWillBePaidPromise;
-        // }).then(function(){
-        //     console.log("Coins have been paid.");
-        //     resolve();
-        // })
-        .catch(function (err) {
-            reject(err);
-        })
+            .then(overlayWillBeDismissedPromise)
+            .then(function () {
+                let questionsWillBeSelectedPromise = driver.findElements(swd.By.css(".collection-item"));
+                return questionsWillBeSelectedPromise;
+            }).then(function (allQuestions) {
+                console.log("I was here");
+                gQuestions = allQuestions;
+                console.log(gQuestions.length);
+                let questionsTextPromise = gQuestions.map(function (questionElement) {
+                    return questionElement.getText();
+                })
+                return Promise.all(questionsTextPromise);
+            }).then(function (questionsText) {
+                let i;
+                for (i = 0; i < questionsText.length; i++) {
+                    if (questionsText[i].includes(question.problem)) {
+                        console.log(i);
+                        break;
+                    }
+                }
+                let questionWillBeClickedPromise = gQuestions[i].click();
+                return questionWillBeClickedPromise;
+            }).then(function(){
+                console.log("Question clicked");
+            })
+            .then(overlayWillBeDismissedPromise)
+            .then(function(){
+                let questionsTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5")), 5000);
+                return questionsTabWillBeSelectedPromise;
+            }).then(function(){
+                let payCoinsBtnWillBeSelected = driver.findElement(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5"))
+                return payCoinsBtnWillBeSelected;
+                // resolve();
+            }).then(function(coinsBtn){
+                let coinsWillBePaidPromise = coinsBtn.click();
+                return coinsWillBePaidPromise;
+            }).then(function(){
+                console.log("Coins have been paid.");
+                resolve();
+            })
+            .catch(function (err) {
+                reject(err);
+            })
     })
 }
 
