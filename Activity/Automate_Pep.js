@@ -200,6 +200,35 @@ function goToQuestionPage(question) {
             console.log("Module clicked");
         })
         .then(overlayWillBeDismissedPromise)
+        .then(function(){
+            let lecturesTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".module-details.active li")), 5000);
+            return lecturesTabWillBeSelectedPromise;
+        }).then(function () {
+                let lecturesWillBeSelectedPromise = driver.findElements(swd.By.css(".module-details.active li"));
+                return lecturesWillBeSelectedPromise;
+            }).then(function (lectureElements) {
+                console.log("I was here");
+                gLectures = lectureElements;
+                console.log(gLectures.length);
+                let lecturesTextPromise = lectureElements.map(function (lecture) {
+                    return lecture.getText();
+                })
+                return Promise.all(lecturesTextPromise);
+            }).then(function (lecturesText) {
+                let i;
+                for (i = 0; i < lecturesText.length; i++) {
+                    if (lecturesText[i].includes(question.Lecture)) {
+                        console.log(i);
+                        break;
+                    }
+                }
+                let lectureWillBeClickedPromise = gLectures[i].click();
+                return lectureWillBeClickedPromise;
+            })
+            .then(function(){
+                console.log("Lecture clicked");
+            })
+            
         // .then(function(){
         //     let payCoinsBtnWillBeSelected = driver.findElement(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5"))
         //     return payCoinsBtnWillBeSelected;
