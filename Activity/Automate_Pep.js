@@ -195,9 +195,10 @@ function goToQuestionPage(question) {
 
                 let moduleWillBeClickedPromise = gModules[i].click();
                 return moduleWillBeClickedPromise;
-            }).then(function () {
-                console.log("Module clicked");
             })
+            // .then(function () {
+            //     console.log("Module clicked");
+            // })
             .then(overlayWillBeDismissedPromise)
             .then(function(){
                 let lecturesTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".module-details.active li")), 5000);
@@ -223,9 +224,10 @@ function goToQuestionPage(question) {
                 }
                 let lectureWillBeClickedPromise = gLectures[i].click();
                 return lectureWillBeClickedPromise;
-            }).then(function(){
-                console.log("Lecture clicked");
             })
+            // .then(function(){
+            //     console.log("Lecture clicked");
+            // })
             .then(overlayWillBeDismissedPromise)
             .then(function () {
                 let questionsWillBeSelectedPromise = driver.findElements(swd.By.css(".collection-item"));
@@ -248,9 +250,10 @@ function goToQuestionPage(question) {
                 }
                 let questionWillBeClickedPromise = gQuestions[i].click();
                 return questionWillBeClickedPromise;
-            }).then(function(){
-                console.log("Question clicked");
             })
+            // .then(function(){
+            //     console.log("Question clicked");
+            // })
             .then(overlayWillBeDismissedPromise)
             .then(function(){
                 let questionsTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5")), 5000);

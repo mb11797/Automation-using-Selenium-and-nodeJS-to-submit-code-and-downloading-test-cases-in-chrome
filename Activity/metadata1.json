@@ -1,0 +1,26 @@
+[
+    {
+        "path": "../Codes/code1",
+        "module": "Recursion",
+        "Lecture": "Motion in recursion",
+        "problem": "Factorial"
+    },
+    {
+        "path": "../Codes/code2",
+        "module": "Recursion",
+        "Lecture": "Motion in recursion",
+        "problem": "Print Zigzag"
+    },
+    {
+        "path": "../Codes/code3",
+        "module": "Data Structures",
+        "Lecture": "Graphs",
+        "problem": "Breadth First Traversal"
+    },
+    {
+        "path": "../Codes/code4",
+        "module": "Dynamic Programming",
+        "Lecture": "Dynamic Programming and Greedy",
+        "problem": "Goldmine"
+    }
+]
