@@ -16,6 +16,7 @@ let gTextArea;      //global text area
 let gModules;       //global modules
 let gLectures;      //global lectures
 let gQuestions;     //global questions
+
 // chromedriver
 require("chromedriver");
 
@@ -29,12 +30,6 @@ let bldr = new swd.Builder();
 
 // driver => 1 tab
 let driver = bldr.forBrowser("chrome").build();
-
-// let tabWillBeOpenedPromise = driver.get("https://google.com");
-// let tabWillBeOpenedPromise = driver.get("https://pepcoding.com/login");
-// tabWillBeOpenedPromise.then(function(){
-//     console.log("Tab was successfully opened");
-// });
 
 let credentialWillBeReadPromise = fs.promises.readFile(credentials);
 credentialWillBeReadPromise.then(function (content) {
@@ -64,7 +59,6 @@ credentialWillBeReadPromise.then(function (content) {
     //for parallel work
     let combinedPromise = Promise.all([emailWillBeInputPromise, passwordWillBeInputPromise]);
     return combinedPromise;
-    //wait
 }).then(function () {
     console.log("Email and Password are enetered");
 }).then(function () {
@@ -86,7 +80,6 @@ credentialWillBeReadPromise.then(function (content) {
         return cardElementWillBeSelectedPromise;
     }).then(function (elements) {
         gce = elements;
-        //extract name of the courses
         let tPromisesArray = [];
         for (let i = 0; i < elements.length; i++) {
             let elementTextPromise = elements[i].getText();
@@ -105,12 +98,10 @@ credentialWillBeReadPromise.then(function (content) {
     }).then(function () {
         console.log("Reached Inside our Course.");
     }).then(function () {
-        // read metadata.json file
         let fileReadPromise = fs.promises.readFile(metadata);
         return fileReadPromise;
     }).then(function (content) {
         let questions = JSON.parse(content);
-        //the => synchronized
         let questionsWillBeSolvedPromise = solveQuestion(questions[0]);
         for(let i=1; i<questions.length; i++){
             questionsWillBeSolvedPromise = questionsWillBeSolvedPromise.then(function(){
@@ -126,19 +117,6 @@ credentialWillBeReadPromise.then(function (content) {
     .catch(function (err) {
         console.log(err);
     });
-
-// all then will and catch will be run sequentially
-
-// tabWillBeOpenedPromise.catch(function(err){
-//     console.log(err);
-// });
-
-// NOTE: JAB BHI THEN KE BAAD THEN KE BAAD THEN CHALANA HOGA TOH HAMESHA EK PROMISE RETURN KARANA HOGA THEN KE ANDAR KE FUNCTION SE
-
-console.log("I will be first");
-
-//ABSTRACTION AND PATIENCE
-
 
 
 //problem submit, test case download
@@ -194,7 +172,6 @@ function solveQuestion(question) {
             .then(function () {
                 const testCasesWillBeSelectedPromise = driver.findElements(swd.By.css(".collection-item"));
                 return testCasesWillBeSelectedPromise;
-                // /test cases download => test cases element => 5
             }).then(function (testCasesElements) {
                 let inputsPromises = testCasesElements.map(function (testCaseElement) {
                     return testCaseElement.findElements(swd.By.css("input[type=hidden]"));
@@ -205,10 +182,8 @@ function solveQuestion(question) {
                     let input = ie[0].getAttribute("value");
                     let expected = ie[1].getAttribute("value");
                     let actual = ie[2].getAttribute("value");
-                    // 1 particular => row => 1 Promise
                     return Promise.all([input, expected, actual]);
                 })
-                //all rows => resolved
                 return Promise.all(inputValPromiseArray);
             }).then(function (inputTestCasesVal) {
                 // 2d array
@@ -222,7 +197,6 @@ function solveQuestion(question) {
                 let testCaseFileWillBeWrittenPromise = fs.promises.writeFile(path.join(question.path, "tc.json"), JSON.stringify(objArray));
                 return testCaseFileWillBeWrittenPromise;
             })
-
             // read question from metadata.json file
             // 1. copy the code to editor
             // 2. submit the code
@@ -252,32 +226,6 @@ function goToQuestionPage(question) {
             let AllModulesWillBeSelectedPromise = driver.findElements(swd.By.css(".lis.tab"));
             return AllModulesWillBeSelectedPromise;
         }).then(function (AllModules) {
-        //     //findText
-        //     gModules = AllModules;
-        //     console.log(gModules.length);
-        //     let moduleNameArray = AllModules.map(function (module) {
-        //         return module.getText();
-        //     })
-        //     return Promise.all(moduleNameArray);
-
-        //     // let textPromiseArray = [];
-        //     // for(let i=0; i<AllModules.length; i++){
-        //     //     let moduleTextPromise = AllModules[i].getText();
-        //     //     textPromiseArray.push(moduleTextPromise);
-        //     // }
-        //     // return Promise.all(textPromiseArray);
-        // }).then(function (modulesWithText) {
-        //     let i;
-        //     for (i = 0; i < modulesWithText.length; i++) {
-        //         if (modulesWithText[i].includes(question.module)) {
-        //             console.log(i);
-        //             break;
-        //         }
-        //     }
-
-        //     let moduleWillBeClickedPromise = gModules[i].click();
-        //     return moduleWillBeClickedPromise;
-        // })
             console.log("I was here");
             let moduleWillBeClickedPromise = goToQuestionPageHelper(gModules, AllModules, question.module);
             return moduleWillBeClickedPromise;
@@ -291,22 +239,6 @@ function goToQuestionPage(question) {
                 let lecturesWillBeSelectedPromise = driver.findElements(swd.By.css(".module-details.active li"));
                 return lecturesWillBeSelectedPromise;
             }).then(function (lectureElements) {
-            //     gLectures = lectureElements;
-            //     console.log(gLectures.length);
-            //     let lecturesTextPromise = lectureElements.map(function (lecture) {
-            //         return lecture.getText();
-            //     })
-            //     return Promise.all(lecturesTextPromise);
-            // }).then(function (lecturesText) {
-            //     let i;
-            //     for (i = 0; i < lecturesText.length; i++) {
-            //         if (lecturesText[i].includes(question.Lecture)) {
-            //             console.log(i);
-            //             break;
-            //         }
-            //     }
-            //     let lectureWillBeClickedPromise = gLectures[i].click();
-            //     return lectureWillBeClickedPromise;
                 let lectureWillBeClickedPromise = goToQuestionPageHelper(gLectures, lectureElements, question.Lecture);
                 return lectureWillBeClickedPromise;
             }).then(function(){
@@ -316,40 +248,17 @@ function goToQuestionPage(question) {
                 let questionsWillBeSelectedPromise = driver.findElements(swd.By.css(".collection-item"));
                 return questionsWillBeSelectedPromise;
             }).then(function (allQuestions) {
-            //     gQuestions = allQuestions;
-            //     console.log(gQuestions.length);
-            //     let questionsTextPromise = gQuestions.map(function (questionElement) {
-            //         return questionElement.getText();
-            //     })
-            //     return Promise.all(questionsTextPromise);
-            // }).then(function (questionsText) {
-            //     let i;
-            //     for (i = 0; i < questionsText.length; i++) {
-            //         if (questionsText[i].includes(question.problem)) {
-            //             console.log(i);
-            //             break;
-            //         }
-            //     }
-            //     let questionWillBeClickedPromise = gQuestions[i].click();
-            //     return questionWillBeClickedPromise;
                 let questionWillBeClickedPromise = goToQuestionPageHelper(gQuestions, allQuestions, question.problem);
                 return questionWillBeClickedPromise;
             }).then(function(){
                 console.log("Question clicked");
             }).then(overlayWillBeDismissedPromise)
-            // let qUrlWillBeOpenedPromise = driver.get(question.url);
-            // qUrlWillBeOpenedPromise.then(function(){
-            //     let payCoinsBtnWillBeSelected = driver.findElement(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5"))
-            //     return payCoinsBtnWillBeSelected;
-            //     // resolve();
-            // })
             .then(function(){
                 let questionsTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5")), 5000);
                 return questionsTabWillBeSelectedPromise;
             }).then(function () {
                 let payCoinsBtnWillBeSelected = driver.findElement(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5"))
                 return payCoinsBtnWillBeSelected;
-                // resolve();
             })
             .then(function (coinsBtn) {
                 let coinsWillBePaidPromise = coinsBtn.click();
@@ -363,24 +272,8 @@ function goToQuestionPage(question) {
     })
 }
 
-// Logic => promise => allow wait overlay dismiss
-function overlayWillBeDismissedPromise() {
-    return new Promise(function (resolve, reject) {
-        let siteOverlayWillBeFoundPromise = driver.findElement(swd.By.css("#siteOverlay"));
-        siteOverlayWillBeFoundPromise.then(function (soe) {
-            let willWaitForOverlayPromise = driver.wait(swd.until.elementIsNotVisible(soe));
-            return willWaitForOverlayPromise;
-        }).then(function () {
-            resolve();
-        }).catch(function (err) {
-            reject(err);
-        })
-    })
-}
-
 function goToQuestionPageHelper(gElements, AllElements, elementName) {
     return new Promise(function(resolve, reject){
-    //findText
         console.log("Hey");
         gElements = AllElements;
         console.log(gElements.length);
@@ -407,3 +300,20 @@ function goToQuestionPageHelper(gElements, AllElements, elementName) {
         })
     })
 }
+
+// Logic => promise => allow wait overlay dismiss
+function overlayWillBeDismissedPromise() {
+    return new Promise(function (resolve, reject) {
+        let siteOverlayWillBeFoundPromise = driver.findElement(swd.By.css("#siteOverlay"));
+        siteOverlayWillBeFoundPromise.then(function (soe) {
+            let willWaitForOverlayPromise = driver.wait(swd.until.elementIsNotVisible(soe));
+            return willWaitForOverlayPromise;
+        }).then(function () {
+            resolve();
+        }).catch(function (err) {
+            reject(err);
+        })
+    })
+}
+
+console.log("I will be first");
