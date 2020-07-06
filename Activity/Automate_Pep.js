@@ -17,13 +17,13 @@ let gModules;       //global modules
 let gLectures;      //global lectures
 let gQuestions;     //global questions
 
-
-
 // chromedriver
 require("chromedriver");
 
 // selenium
 let swd = require('selenium-webdriver');
+const { resolve } = require("path");
+const { rejects } = require("assert");
 
 // builder => browser
 let bldr = new swd.Builder();
@@ -36,12 +36,18 @@ credentialWillBeReadPromise.then(function (content) {
     let { userName, password } = JSON.parse(content);
     un = userName;
     pn = password;
+    let waitWillBeSetPromise = driver.manage().setTimeouts({
+        implicit: 10000
+    })
+    return waitWillBeSetPromise;
 }).then(function () {
     let tabWillBeOpenedPromise = driver.get("https://pepcoding.com/login");
-    return tabWillBeOpenedPromise
+    return tabWillBeOpenedPromise;
 }).then(function () {
     console.log("Tab was successfully opened");
 }).then(function () {
+    //attribute selector => another type of selector
+    //first occurences
     let emailWillBeSelectedPromise = driver.findElement(swd.By.css("input[type=email]"));
     let passwordWillBeSelectedPromise = driver.findElement(swd.By.css("input[type=password]"));
     //for parallel work
@@ -74,7 +80,6 @@ credentialWillBeReadPromise.then(function (content) {
         return cardElementWillBeSelectedPromise;
     }).then(function (elements) {
         gce = elements;
-        //extract name of the courses
         let tPromisesArray = [];
         for (let i = 0; i < elements.length; i++) {
             let elementTextPromise = elements[i].getText();
@@ -93,18 +98,26 @@ credentialWillBeReadPromise.then(function (content) {
     }).then(function () {
         console.log("Reached Inside our Course.");
     }).then(function () {
-        // read metadata.json file
         let fileReadPromise = fs.promises.readFile(metadata);
         return fileReadPromise;
     }).then(function (content) {
         let questions = JSON.parse(content);
-        let questionWillBeSolvedPromise = solveQuestion(questions[0]);
-        return questionWillBeSolvedPromise;
+        let questionsWillBeSolvedPromise = solveQuestion(questions[0]);
+        for(let i=1; i<questions.length; i++){
+            questionsWillBeSolvedPromise = questionsWillBeSolvedPromise.then(function(){
+                return solveQuestion(questions[i]);
+            })
+        }
+        return questionsWillBeSolvedPromise;
     }).then(function () {
-        console.log("Question has been submitted.");
-    }).catch(function (err) {
+        console.log("Questions has been submitted.");
+    })
+
+
+    .catch(function (err) {
         console.log(err);
     });
+
 
 //problem submit, test case download
 function solveQuestion(question) {
@@ -155,118 +168,48 @@ function solveQuestion(question) {
         }).then(function (submitBtn) {
             let submitBtnWillBeClickedPromise = submitBtn.click();
             return submitBtnWillBeClickedPromise;
-        }).then(function () {
-            resolve();
-        }).catch(function (err) {
-            reject(err);
-        })
-    })
-}
-
-function goToQuestionPage(question) {
-    return new Promise(function (resolve, reject) {
-            overlayWillBeDismissedPromise().then(function () {
-                let modulesTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".lis.tab")), 5000);
-                return modulesTabWillBeSelectedPromise;
-            }).catch(function (err) {
-                console.log(err);
-            }).then(function () {
-                let AllModulesWillBeSelectedPromise = driver.findElements(swd.By.css(".lis.tab"));
-                return AllModulesWillBeSelectedPromise;
-            }).catch(function () {
-            }).then(function (AllModules) {
-                console.log("I was here");
-
-                gModules = AllModules;
-                // console.log(gModules.length);
-
-                let moduleNameArray = AllModules.map(function (module) {
-                    return module.getText();
-                })
-                return Promise.all(moduleNameArray);
-            }).then(function (modulesWithText) {
-                let i;
-                for (i = 0; i < modulesWithText.length; i++) {
-                    if (modulesWithText[i].includes(question.module)) {
-                        // console.log(i);
-                        break;
-                    }
-                }
-
-                let moduleWillBeClickedPromise = gModules[i].click();
-                return moduleWillBeClickedPromise;
-            })
-            // .then(function () {
-            //     console.log("Module clicked");
-            // })
-            .then(overlayWillBeDismissedPromise)
-            .then(function(){
-                let lecturesTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".module-details.active li")), 5000);
-                return lecturesTabWillBeSelectedPromise;
-            }).then(function () {
-                let lecturesWillBeSelectedPromise = driver.findElements(swd.By.css(".module-details.active li"));
-                return lecturesWillBeSelectedPromise;
-            }).then(function (lectureElements) {
-                console.log("I was here");
-                gLectures = lectureElements;
-                console.log(gLectures.length);
-                let lecturesTextPromise = lectureElements.map(function (lecture) {
-                    return lecture.getText();
-                })
-                return Promise.all(lecturesTextPromise);
-            }).then(function (lecturesText) {
-                let i;
-                for (i = 0; i < lecturesText.length; i++) {
-                    if (lecturesText[i].includes(question.Lecture)) {
-                        console.log(i);
-                        break;
-                    }
-                }
-                let lectureWillBeClickedPromise = gLectures[i].click();
-                return lectureWillBeClickedPromise;
-            })
-            // .then(function(){
-            //     console.log("Lecture clicked");
-            // })
-            .then(overlayWillBeDismissedPromise)
+        }).then(overlayWillBeDismissedPromise)
             .then(function () {
-                let questionsWillBeSelectedPromise = driver.findElements(swd.By.css(".collection-item"));
-                return questionsWillBeSelectedPromise;
-            }).then(function (allQuestions) {
-                console.log("I was here");
-                gQuestions = allQuestions;
-                console.log(gQuestions.length);
-                let questionsTextPromise = gQuestions.map(function (questionElement) {
-                    return questionElement.getText();
+                const testCasesWillBeSelectedPromise = driver.findElements(swd.By.css(".collection-item"));
+                return testCasesWillBeSelectedPromise;
+            }).then(function (testCasesElements) {
+                let inputsPromises = testCasesElements.map(function (testCaseElement) {
+                    return testCaseElement.findElements(swd.By.css("input[type=hidden]"));
                 })
-                return Promise.all(questionsTextPromise);
-            }).then(function (questionsText) {
-                let i;
-                for (i = 0; i < questionsText.length; i++) {
-                    if (questionsText[i].includes(question.problem)) {
-                        console.log(i);
-                        break;
-                    }
-                }
-                let questionWillBeClickedPromise = gQuestions[i].click();
-                return questionWillBeClickedPromise;
+                return Promise.all(inputsPromises);
+            }).then(function (inputElements) {
+                let inputValPromiseArray = inputElements.map(function (ie) {
+                    let input = ie[0].getAttribute("value");
+                    let expected = ie[1].getAttribute("value");
+                    let actual = ie[2].getAttribute("value");
+                    return Promise.all([input, expected, actual]);
+                })
+                return Promise.all(inputValPromiseArray);
+            }).then(function (inputTestCasesVal) {
+                // 2d array
+                let objArray = inputTestCasesVal.map(function (row) {
+                    let obj = {};
+                    obj.input = row[0];
+                    obj.expected = row[1];
+                    obj.actual = row[2];
+                    return obj;
+                })
+                let testCaseFileWillBeWrittenPromise = fs.promises.writeFile(path.join(question.path, "tc.json"), JSON.stringify(objArray));
+                return testCaseFileWillBeWrittenPromise;
             })
-            // .then(function(){
-            //     console.log("Question clicked");
-            // })
-            .then(overlayWillBeDismissedPromise)
+            // read question from metadata.json file
+            // 1. copy the code to editor
+            // 2. submit the code
+            // 3. download testcases
             .then(function(){
-                let questionsTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5")), 5000);
-                return questionsTabWillBeSelectedPromise;
-            }).then(function(){
-                let payCoinsBtnWillBeSelected = driver.findElement(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5"))
-                return payCoinsBtnWillBeSelected;
-                // resolve();
-            }).then(function(coinsBtn){
-                let coinsWillBePaidPromise = coinsBtn.click();
-                return coinsWillBePaidPromise;
-            }).then(function(){
-                console.log("Coins have been paid.");
+                let p0 = driver.navigate().back();
+                for(let i=1; i<4; i++){
+                    p0 = p0.then(function(){
+                        return driver.navigate().back();
+                    })
+                }
+                return p0;
+            }).then(function () {
                 resolve();
             })
             .catch(function (err) {
@@ -275,6 +218,88 @@ function goToQuestionPage(question) {
     })
 }
 
+function goToQuestionPage(question) {
+    return new Promise(function (resolve, reject) {
+        
+        let modulesTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".lis.tab")), 5000);
+        modulesTabWillBeSelectedPromise.then(function(){
+            let AllModulesWillBeSelectedPromise = driver.findElements(swd.By.css(".lis.tab"));
+            return AllModulesWillBeSelectedPromise;
+        }).then(function (AllModules) {
+            console.log("I was here");
+            let moduleWillBeClickedPromise = goToQuestionPageHelper(gModules, AllModules, question.module);
+            return moduleWillBeClickedPromise;
+        }).then(function(){
+            console.log("Module clicked");
+        }).then(overlayWillBeDismissedPromise)
+        .then(function(){
+            let lecturesTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".module-details.active li")), 5000);
+            return lecturesTabWillBeSelectedPromise;
+        }).then(function () {
+                let lecturesWillBeSelectedPromise = driver.findElements(swd.By.css(".module-details.active li"));
+                return lecturesWillBeSelectedPromise;
+            }).then(function (lectureElements) {
+                let lectureWillBeClickedPromise = goToQuestionPageHelper(gLectures, lectureElements, question.Lecture);
+                return lectureWillBeClickedPromise;
+            }).then(function(){
+                console.log("Lecture clicked");
+            }).then(overlayWillBeDismissedPromise)
+            .then(function () {
+                let questionsWillBeSelectedPromise = driver.findElements(swd.By.css(".collection-item"));
+                return questionsWillBeSelectedPromise;
+            }).then(function (allQuestions) {
+                let questionWillBeClickedPromise = goToQuestionPageHelper(gQuestions, allQuestions, question.problem);
+                return questionWillBeClickedPromise;
+            }).then(function(){
+                console.log("Question clicked");
+            }).then(overlayWillBeDismissedPromise)
+            .then(function(){
+                let questionsTabWillBeSelectedPromise = driver.wait(swd.until.elementLocated(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5")), 5000);
+                return questionsTabWillBeSelectedPromise;
+            }).then(function () {
+                let payCoinsBtnWillBeSelected = driver.findElement(swd.By.css(".btn.waves-effect.waves-light.col.s4.l1.push-s4.push-l5"))
+                return payCoinsBtnWillBeSelected;
+            })
+            .then(function (coinsBtn) {
+                let coinsWillBePaidPromise = coinsBtn.click();
+                return coinsWillBePaidPromise;
+            }).then(function () {
+                console.log("Coins have been paid.");
+                resolve();
+            }).catch(function (err) {
+                reject(err);
+            })
+    })
+}
+
+function goToQuestionPageHelper(gElements, AllElements, elementName) {
+    return new Promise(function(resolve, reject){
+        console.log("Hey");
+        gElements = AllElements;
+        console.log(gElements.length);
+        let elementsNameArray = AllElements.map(function (element) {
+            return element.getText();
+        })
+        console.log(elementsNameArray.length);
+        let allElementsNameArrayPromise = Promise.all(elementsNameArray);
+        allElementsNameArrayPromise.then(function (elementsWithText) {
+            let i;
+            for (i = 0; i < elementsWithText.length; i++) {
+                if (elementsWithText[i].includes(elementName)) {
+                    console.log(i);
+                    break;
+                }
+            }
+
+            let elementWillBeClickedPromise = gElements[i].click();
+            return elementWillBeClickedPromise;
+        }).then(function(){
+            resolve();
+        }).catch(function(err){
+            reject(err);
+        })
+    })
+}
 
 // Logic => promise => allow wait overlay dismiss
 function overlayWillBeDismissedPromise() {

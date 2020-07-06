@@ -1,0 +1,27 @@
+[
+    {
+        "input": "5\n\n",
+        "expected": "120\n",
+        "actual": "120\n"
+    },
+    {
+        "input": "9\n\n",
+        "expected": "362880\n",
+        "actual": "362880\n"
+    },
+    {
+        "input": "4\n\n",
+        "expected": "24\n",
+        "actual": "24\n"
+    },
+    {
+        "input": "3\n\n",
+        "expected": "6\n",
+        "actual": "6\n"
+    },
+    {
+        "input": "3\n\n",
+        "expected": "6\n",
+        "actual": "6\n"
+    }
+]
